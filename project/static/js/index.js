@@ -31,7 +31,9 @@ function onMediaSuccess(stream) {
       processData: false,
       contentType: false
     }).done(function(data) {
-       console.log(data);
+      $div = $("body").append('<div></div>')
+      dataObj = JSON.parse(data);
+      $div.html(dataObj.vtext)
     });
   };
 
