@@ -2,3 +2,5 @@
 __pycache__
 testing.db
 *.DS_Store
+*.wav
+AUDIO*.txt

@@ -1,7 +1,9 @@
 from flask import Flask, Blueprint, redirect, render_template, request, flash, url_for, jsonify, json
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.utils import secure_filename
+from subprocess import call
 import os
+
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -22,10 +24,18 @@ def root():
 
 @app.route('/sound', methods=["POST"])
 def sound():
-    data = request.files['data']
-    if data:
-        filename = secure_filename("test.wav")
-        data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    dataList = request.files.getlist('data')
+    fnames = []
+    if dataList:
+        for idx, d in enumerate(dataList):
+            filename = secure_filename("moxie{}.wav".format(idx))
+            fnames.append(filename)
+            d.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], 'AUDIO_index.txt'), 'w') as file:
+            for f in fnames:
+                file.write("file '{}'\n".format(f))
+        call("ffmpeg -y -f concat  -i {} -ar 16000 -ac 1 blah.wav".format(os.path.join(app.config['UPLOAD_FOLDER'], 'AUDIO_index.txt')),shell=True)
         return json.dumps({"text": "We Got Data!"})
 
     return json.dumps({"text": "Something went wrong"}), 400
