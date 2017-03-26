@@ -10,13 +10,14 @@
 
     <script src="//code.jquery.com/jquery-3.1.1.js" integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA=" crossorigin="anonymous"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"></script>
 </head>
 
 <body>
     <div class="container-fluid">
     {% block content %} {% endblock %}
     </div>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 </body>
 
 </html>
