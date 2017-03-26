@@ -4,6 +4,7 @@ var mediaConstraints = {
 
 let mediaRecorder;
 let $recordBtn = $("#record");
+let $demoBtn = $("#demo");
 let fd;
 const DATA = 'data';
 const FILENAME = 'filename';
@@ -31,9 +32,9 @@ function onMediaSuccess(stream) {
       processData: false,
       contentType: false
     }).done(function(data) {
-      $div = $("body").append('<div></div>')
       dataObj = JSON.parse(data);
-      $div.html(dataObj.vtext)
+      $div = $("#content").append(dataObj.text);
+      $("#content").append("<div>" + dataObj.vtext + "</div>");
     });
   };
 
@@ -41,6 +42,16 @@ function onMediaSuccess(stream) {
 }
 
 
+$demoBtn.click(function() {
+  $.ajax({
+      type: 'GET',
+      url: '/demo',
+    }).done(function(data) {
+      dataObj = JSON.parse(data);
+      $div = $("#content").append(dataObj.text);
+      $("#content").append("<div>" + dataObj.vtext + "</div>");
+    });
+});
 
 $recordBtn.click(function(e) {
   if ($recordBtn.html() === 'RECORD') {

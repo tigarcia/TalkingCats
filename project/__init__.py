@@ -43,7 +43,7 @@ settings:
     depth: 3
   vocab:
     # Need for CTC
-    size: 73
+    size: 74
 
   # Setting up the backend.
   backend:
@@ -125,9 +125,67 @@ evaluate:
 """ % (base, base, base, base, base, base)
     return s
 
+def str_to_mathml(s):
+    r = ''
+    stack = []
+    stack2 = []
+    while s:
+        # print(s)
+        if s.startswith('<'):
+            tag = s[:s.find('>') + 1]
+            s = s[s.find('>') + 1:]
+
+            if tag[1] != '/':
+                r += tag
+                stack.insert(0, tag)
+            else:
+                open = '<' + tag[2:]
+                if open in stack:
+                    while stack[0] != open:
+                        r += '</' + stack.pop(0)[1:]
+                    r += '</' + stack.pop(0)[1:]
+        else:
+            if s[:1] in '([{':
+                stack2.insert(0, s[:1])
+                r += s[:1]
+                s = s[1:]
+            elif s[:1] in ')]}':
+                if s[:1] in stack2:
+                    while stack2[0] != s[:1]:
+                        r += ')]}'['([{'.find(stack.pop(0))]
+                    r += ')]}'['([{'.find(stack.pop(0))]
+                s = s[1:]
+            else:
+                r += s[:1]
+                s = s[1:]
+    while stack:
+        r += '</' + stack.pop(0)[1:]
+    if r.endswith('<mo>$</mo>'):
+        r = r[:-10]
+    return "<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>" + r + "</math>"
+
+
+
 @app.route('/')
 def root():
     return render_template("index.html")
+
+@app.route('/demo', methods=['GET'])
+def demo():
+    path = mkdir_rand()
+    call("cp -R ./model_data/* {}".format(path), shell=True)
+    speech_yml = speech_file(path)
+    with open(os.path.join(path, "speech.yml"), 'w') as f:
+        f.write(speech_yml)
+
+    call("cp ./out.wav {}".format(os.path.join(path, "corp", "audio")), shell=True)
+    output = check_output("kur evaluate {}".format(os.path.join(path, "speech.yml")), shell=True)
+    print(output.decode('utf-8'))
+    o = output.decode('utf-8').split("\n")[0]
+    prediction = o.split(" ")[1]
+    print(prediction[1:-1])
+    return json.dumps({"text": str_to_mathml(prediction[1:-1]), "vtext": regular_text.render(text=str_to_mathml(prediction[1:-1])) })
+
 
 @app.route('/sound', methods=["POST"])
 def sound():
@@ -144,7 +202,7 @@ def sound():
         with open(os.path.join(path, "corp", "audio", 'AUDIO_index.txt'), 'w') as file:
             for f in fnames:
                 file.write("file '{}'\n".format(f))
-        call("ffmpeg -y -f concat  -i {} -ar 16000 -ac 1 {}".format(os.path.join(path, "corp", "audio",'AUDIO_index.txt'), os.path.join(path, "corp", "audio", 'out.wav')),shell=True)
+        call("ffmpeg -y -f concat  -i {} -ar 22050 -ac 1 {}".format(os.path.join(path, "corp", "audio",'AUDIO_index.txt'), os.path.join(path, "corp", "audio", 'out.wav')),shell=True)
         speech_yml = speech_file(path)
         with open(os.path.join(path, "speech.yml"), 'w') as f:
             f.write(speech_yml)
@@ -156,6 +214,6 @@ def sound():
         print(prediction[1:-1])
         #if output.decode("utf-8").split("\n") and len(output.decode('utf-8').split("\n")) == 2:
 
-        return json.dumps({"text": prediction[1:-1], "vtext": regular_text.render(text=prediction[1:-1]) })
+        return json.dumps({"text": str_to_mathml(prediction[1:-1]), "vtext": regular_text.render(text=str_to_mathml(prediction[1:-1])) })
 
     return json.dumps({"text": "Something went wrong"}), 400
