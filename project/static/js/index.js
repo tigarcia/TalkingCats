@@ -14,6 +14,10 @@ function onMediaError(e) {
 }
 
 
+function toggleSpinner() {
+  $("#spinner").toggleClass("hidden");
+}
+
 function onMediaSuccess(stream) {
   fd = new FormData();
   mediaRecorder = new MediaStreamRecorder(stream);
@@ -25,6 +29,7 @@ function onMediaSuccess(stream) {
     $recordBtn.removeClass();
     $recordBtn.addClass("btn btn-default");
     $recordBtn.html("RECORD");
+    toggleSpinner();
     $.ajax({
       type: 'POST',
       url: '/sound',
@@ -32,6 +37,7 @@ function onMediaSuccess(stream) {
       processData: false,
       contentType: false
     }).done(function(data) {
+      toggleSpinner();
       dataObj = JSON.parse(data);
       $div = $("#content").append(dataObj.text);
       $("#content").append("<div>" + dataObj.vtext + "</div>");
@@ -43,6 +49,7 @@ function onMediaSuccess(stream) {
 
 
 $demoBtn.click(function() {
+  toggleSpinner();
   $.ajax({
       type: 'GET',
       url: '/demo',
@@ -50,6 +57,7 @@ $demoBtn.click(function() {
       dataObj = JSON.parse(data);
       $div = $("#content").append(dataObj.text);
       $("#content").append("<div>" + dataObj.vtext + "</div>");
+      toggleSpinner();
     });
 });
 

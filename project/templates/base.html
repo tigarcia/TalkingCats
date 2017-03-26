@@ -32,6 +32,9 @@
       </div><!-- /.container-fluid -->
     </nav>
     <div class="main container-fluid">
+       <div style="width: 100%">
+       <img style="display: block" id="spinner"  class="hidden spinstyle" src="//media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif"></img>
+        </div>
        {% block content %} {% endblock %}
     </div>
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>

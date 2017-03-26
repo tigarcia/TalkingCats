@@ -12,3 +12,12 @@
   height: 15px;
   display: inline-block;
 }
+
+.hidden {
+  display: none;
+}
+
+.spinstyle {
+  margin: 0 auto;
+  width: 80px;
+}
