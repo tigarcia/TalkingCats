@@ -4,3 +4,5 @@ testing.db
 *.DS_Store
 *.wav
 AUDIO*.txt
+kur
+tmp/*
